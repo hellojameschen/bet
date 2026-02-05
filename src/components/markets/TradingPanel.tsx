@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/lib/store'
@@ -18,13 +20,16 @@ interface TradingPanelProps {
   onTradeComplete?: () => void
 }
 
-export function TradingPanel({ marketId, outcomes, onTradeComplete }: TradingPanelProps) {
-  const { user } = useAuthStore()
-  const [selectedOutcome, setSelectedOutcome] = useState<string | null>(outcomes[0]?.id || null)
+export function TradingPanel({ marketId, outcomes: initialOutcomes, onTradeComplete }: TradingPanelProps) {
+  const router = useRouter()
+  const { user, setUser } = useAuthStore()
+  const [outcomes, setOutcomes] = useState(initialOutcomes)
+  const [selectedOutcome, setSelectedOutcome] = useState<string | null>(initialOutcomes[0]?.id || null)
   const [side, setSide] = useState<'buy' | 'sell'>('buy')
   const [amount, setAmount] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const selectedOutcomeData = outcomes.find(o => o.id === selectedOutcome)
   const price = selectedOutcomeData?.currentPrice || 0.5
@@ -44,6 +49,7 @@ export function TradingPanel({ marketId, outcomes, onTradeComplete }: TradingPan
 
     setIsLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
       const response = await fetch('/api/orders', {
@@ -64,8 +70,34 @@ export function TradingPanel({ marketId, outcomes, onTradeComplete }: TradingPan
         throw new Error(data.error || 'Trade failed')
       }
 
+      // Show success message
+      const cost = side === 'buy' ? data.totalCost : data.totalProceeds
+      setSuccess(`${side === 'buy' ? 'Bought' : 'Sold'} ${shares.toFixed(2)} shares for ${formatCurrency(cost)}`)
+      
+      // Update local outcome prices
+      setOutcomes(prev => prev.map(o => {
+        if (o.id === selectedOutcome) {
+          return { ...o, currentPrice: data.newPrice }
+        }
+        // Update the other outcome price (1 - newPrice for binary markets)
+        return { ...o, currentPrice: 1 - data.newPrice }
+      }))
+
+      // Update user balance
+      const userRes = await fetch('/api/auth')
+      const userData = await userRes.json()
+      if (userData.user) {
+        setUser(userData.user)
+      }
+
       setAmount('')
       onTradeComplete?.()
+      
+      // Refresh the page data
+      router.refresh()
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Trade failed')
     } finally {
@@ -168,6 +200,13 @@ export function TradingPanel({ marketId, outcomes, onTradeComplete }: TradingPan
         </div>
       )}
 
+      {success && (
+        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg p-3 mb-4 text-sm flex items-center gap-2">
+          <CheckCircle className="h-4 w-4" />
+          {success}
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg p-3 mb-4 text-sm">
           {error}
@@ -176,16 +215,20 @@ export function TradingPanel({ marketId, outcomes, onTradeComplete }: TradingPan
 
       <Button
         onClick={handleTrade}
-        disabled={isLoading || !amount || parseFloat(amount) <= 0}
+        disabled={isLoading || !amount || parseFloat(amount) <= 0 || !user}
         className="w-full"
         variant={side === 'buy' ? 'success' : 'destructive'}
       >
-        {isLoading ? 'Processing...' : `${side === 'buy' ? 'Buy' : 'Sell'} ${selectedOutcomeData?.name || ''}`}
+        {isLoading ? 'Processing...' : !user ? 'Log in to trade' : `${side === 'buy' ? 'Buy' : 'Sell'} ${selectedOutcomeData?.name || ''}`}
       </Button>
 
-      {user && (
+      {user ? (
         <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
           Balance: {formatCurrency(user.balance)}
+        </div>
+      ) : (
+        <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+          Log in to start trading
         </div>
       )}
     </div>
