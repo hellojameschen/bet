@@ -41,10 +41,10 @@ export function Navbar() {
   }
 
   const navLinks = [
-    { href: '/', label: 'Markets' },
-    { href: '/markets?category=politics', label: 'Politics' },
-    { href: '/markets?category=crypto', label: 'Crypto' },
-    { href: '/markets?category=sports', label: 'Sports' },
+    { href: '/', label: 'All IPOs' },
+    { href: '/markets?category=ipo-timing', label: 'IPO Timing' },
+    { href: '/markets?category=ipo-valuation', label: 'Valuations' },
+    { href: '/markets?category=first-day', label: 'First Day' },
   ]
 
   return (
@@ -55,10 +55,10 @@ export function Navbar() {
             {/* Logo */}
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-xl hidden sm:block">Polybet</span>
+                <span className="font-bold text-xl hidden sm:block">IPO Markets</span>
               </Link>
 
               {/* Desktop Nav Links */}

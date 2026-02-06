@@ -7,8 +7,8 @@ import { Providers } from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Polybet - Prediction Markets",
-  description: "Trade on the outcome of real-world events",
+  title: "IPO Markets - Predict Tech IPOs",
+  description: "Trade on IPO dates, valuations, and first-day performance",
 };
 
 export default function RootLayout({

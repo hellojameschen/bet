@@ -71,14 +71,14 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 text-white">
+      <section className="bg-gradient-to-br from-emerald-600 via-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Bet on the Future
+              Predict the Next Big IPO
             </h1>
             <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Trade on the outcomes of real-world events. Politics, sports, crypto, and more.
+              Trade on IPO timing, valuations, and first-day performance. OpenAI, Stripe, SpaceX, and more.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/markets">
@@ -136,7 +136,7 @@ export default async function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Flame className="h-6 w-6 text-orange-500" />
-            <h2 className="text-2xl font-bold">Trending Markets</h2>
+            <h2 className="text-2xl font-bold">Hot IPO Markets</h2>
           </div>
           <Link href="/markets">
             <Button variant="outline" size="sm">View All</Button>
@@ -151,30 +151,30 @@ export default async function HomePage() {
           <h2 className="text-2xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-8 w-8 text-emerald-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Pick an IPO</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Browse upcoming IPOs from OpenAI, Stripe, SpaceX, and other hot companies. Each market has clear resolution criteria.
+              </p>
+            </div>
+            <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
+                <DollarSign className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Find a Market</h3>
+              <h3 className="font-semibold text-lg mb-2">Trade Your View</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Browse markets on politics, sports, crypto, and more. Each market has a clear resolution criteria.
+                Buy Yes or No shares. Think OpenAI IPOs in 2025? Buy Yes at 25¢ to win $1 if you're right.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Buy Shares</h3>
+              <h3 className="font-semibold text-lg mb-2">Profit on News</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Buy shares in outcomes you believe in. Prices reflect the probability of each outcome.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Win or Sell</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Hold until resolution to earn $1 per winning share, or sell anytime at market price.
+                Prices move with news. Sell when sentiment shifts, or hold until the IPO happens for max payout.
               </p>
             </div>
           </div>
@@ -185,13 +185,13 @@ export default async function HomePage() {
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-xl">Polybet</span>
+            <span className="font-bold text-xl">IPO Markets</span>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            © 2026 Polybet. For educational purposes only.
+            © 2026 IPO Markets. For educational purposes only.
           </p>
         </div>
       </footer>
