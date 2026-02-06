@@ -221,6 +221,18 @@ async function main() {
     },
   ]
 
+  // Create market maker user (provides liquidity)
+  const marketMaker = await prisma.user.upsert({
+    where: { username: 'marketmaker' },
+    update: {},
+    create: {
+      username: 'marketmaker',
+      email: 'mm@polybet.com',
+      passwordHash: await bcrypt.hash('mm-secret-password', 10),
+      balance: 1000000, // $1M for market making
+    },
+  })
+
   for (const marketData of markets) {
     const { outcomes, ...market } = marketData
     
@@ -231,7 +243,7 @@ async function main() {
     })
 
     for (let i = 0; i < outcomes.length; i++) {
-      await prisma.outcome.upsert({
+      const outcome = await prisma.outcome.upsert({
         where: {
           id: `${createdMarket.id}-outcome-${i}`,
         },
@@ -246,10 +258,78 @@ async function main() {
           sortOrder: i,
         },
       })
+
+      // Create market maker orders (bids and asks) around the current price
+      const basePrice = outcomes[i].currentPrice
+      const spreads = [0.02, 0.04, 0.06, 0.08, 0.10] // 2%, 4%, 6%, 8%, 10% from mid
+
+      // Delete existing orders for this outcome
+      await prisma.order.deleteMany({
+        where: { outcomeId: outcome.id, userId: marketMaker.id },
+      })
+
+      for (const spread of spreads) {
+        // Buy orders (bids) below current price
+        const bidPrice = Math.max(0.01, basePrice - spread)
+        const bidQuantity = 100 + Math.random() * 200 // 100-300 shares
+
+        await prisma.order.create({
+          data: {
+            userId: marketMaker.id,
+            marketId: createdMarket.id,
+            outcomeId: outcome.id,
+            side: 'buy',
+            type: 'limit',
+            price: Math.round(bidPrice * 100) / 100,
+            quantity: Math.round(bidQuantity),
+            filledQuantity: 0,
+            status: 'open',
+          },
+        })
+
+        // Sell orders (asks) above current price
+        const askPrice = Math.min(0.99, basePrice + spread)
+        const askQuantity = 100 + Math.random() * 200 // 100-300 shares
+
+        // Market maker needs shares to sell - give them position
+        await prisma.position.upsert({
+          where: {
+            userId_outcomeId: {
+              userId: marketMaker.id,
+              outcomeId: outcome.id,
+            },
+          },
+          update: {
+            shares: { increment: askQuantity },
+          },
+          create: {
+            userId: marketMaker.id,
+            marketId: createdMarket.id,
+            outcomeId: outcome.id,
+            shares: askQuantity * spreads.length, // Total shares for all ask orders
+            avgEntryPrice: basePrice,
+          },
+        })
+
+        await prisma.order.create({
+          data: {
+            userId: marketMaker.id,
+            marketId: createdMarket.id,
+            outcomeId: outcome.id,
+            side: 'sell',
+            type: 'limit',
+            price: Math.round(askPrice * 100) / 100,
+            quantity: Math.round(askQuantity),
+            filledQuantity: 0,
+            status: 'open',
+          },
+        })
+      }
     }
   }
 
   console.log('Seed data created successfully!')
+  console.log('Market maker orders placed for liquidity.')
 }
 
 main()
